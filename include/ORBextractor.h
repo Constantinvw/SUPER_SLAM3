@@ -23,6 +23,9 @@
 #include <list>
 #include <opencv2/opencv.hpp>
 
+#include <memory>
+#include <torch/script.h>
+#include <torch/torch.h>
 
 namespace ORB_SLAM3
 {

@@ -1580,10 +1580,13 @@ Sophus::SE3f Tracking::GrabImageMonocular(const cv::Mat &im, const double &times
         else
             cvtColor(mImGray,mImGray,cv::COLOR_BGRA2GRAY);
     }
+    //-----------------------------------------------------------------
 
     cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE();
-    clahe->setClipLimit(4.0);   // kann zwischen 2.0 und 4.0 optimiert werden
+    clahe->setClipLimit(3.0);   // kann zwischen 2.0 und 4.0 optimiert werden
     clahe->apply(mImGray, mImGray);
+
+    //-----------------------------------------------------------------
 
     if (mSensor == System::MONOCULAR)
     {
