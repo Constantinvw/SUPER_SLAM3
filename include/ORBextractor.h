@@ -22,10 +22,10 @@
 #include <vector>
 #include <list>
 #include <opencv2/opencv.hpp>
-
 #include <memory>
 #include <torch/script.h>
 #include <torch/torch.h>
+
 
 namespace ORB_SLAM3
 {
@@ -109,6 +109,14 @@ protected:
     std::vector<float> mvInvScaleFactor;    
     std::vector<float> mvLevelSigma2;
     std::vector<float> mvInvLevelSigma2;
+
+    // Torch module for learned extractor (optional)
+    torch::jit::script::Module module;
+    // maximum number of features to extract (used by NMS)
+    int max_num;
+
+    // process a single layer with the learned extractor
+    void one_layer(cv::Mat& img, std::vector<cv::KeyPoint>& keypoints, cv::Mat& descriptors);
 };
 
 } //namespace ORB_SLAM
