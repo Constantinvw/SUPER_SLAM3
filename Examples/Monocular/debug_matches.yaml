@@ -1,0 +1,7 @@
+%YAML:1.0
+---
+clahe_clip_limit: 3.0
+distance_factor: 0.7
+use_ransac: 1
+ransac_threshold: 3.0
+ransac_confidence: 0.99

@@ -102,6 +102,8 @@ public:
     int GetNumberDataset();
     int GetMatchesInliers();
 
+    void PrintFeatureStats() const;
+
     //DEBUG
     void SaveSubTrajectory(string strNameFile_frames, string strNameFile_kf, string strFolder="");
     void SaveSubTrajectory(string strNameFile_frames, string strNameFile_kf, Map* pMap);
@@ -314,6 +316,14 @@ protected:
 
     //Current matches in frame
     int mnMatchesInliers;
+
+    // Statistik über Features / MapPoints pro Frame
+    unsigned long long mnFrameStatsCount;
+    unsigned long long mnFeatureSum;
+    unsigned long long mnTrackedMPsSum;
+
+
+
 
     //Last Frame, KeyFrame and Relocalisation Info
     KeyFrame* mpLastKeyFrame;

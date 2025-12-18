@@ -659,6 +659,12 @@ void System::SaveKeyFrameTrajectoryTUM(const string &filename)
     f.close();
 }
 
+void System::PrintFeatureStats()
+{
+    if (mpTracker)
+        mpTracker->PrintFeatureStats();
+}
+
 void System::SaveTrajectoryEuRoC(const string &filename)
 {
 

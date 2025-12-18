@@ -40,7 +40,11 @@ MESSAGE(${OpenCV_VERSION})
 
 find_package(Eigen3 3.1.0 REQUIRED)
 find_package(Pangolin REQUIRED)
-find_package(realsense2)
+# find_package(realsense2)
+
+# Find PyTorch
+find_package(Torch REQUIRED)
+
 
 include_directories(
 ${PROJECT_SOURCE_DIR}
@@ -49,6 +53,7 @@ ${PROJECT_SOURCE_DIR}/include/CameraModels
 ${PROJECT_SOURCE_DIR}/Thirdparty/Sophus
 ${EIGEN3_INCLUDE_DIR}
 ${Pangolin_INCLUDE_DIRS}
+${TORCH_INCLUDE_DIRS} 
 )
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/lib)
@@ -121,19 +126,20 @@ ${EIGEN3_LIBS}
 ${Pangolin_LIBRARIES}
 ${PROJECT_SOURCE_DIR}/Thirdparty/DBoW2/lib/libDBoW2.so
 ${PROJECT_SOURCE_DIR}/Thirdparty/g2o/lib/libg2o.so
+${TORCH_LIBRARIES}  
 -lboost_serialization
 -lcrypto
 )
 
-# If RealSense SDK is found the library is added and its examples compiled
-if(realsense2_FOUND)
-    include_directories(${PROJECT_NAME}
-    ${realsense_INCLUDE_DIR}
-    )
-    target_link_libraries(${PROJECT_NAME}
-    ${realsense2_LIBRARY}
-    )
-endif()
+# # If RealSense SDK is found the library is added and its examples compiled
+# if(realsense2_FOUND)
+#     include_directories(${PROJECT_NAME}
+#     ${realsense_INCLUDE_DIR}
+#     )
+#     target_link_libraries(${PROJECT_NAME}
+#     ${realsense2_LIBRARY}
+#     )
+# endif()
 
 
 # Build examples
@@ -200,6 +206,16 @@ target_link_libraries(mono_kitti ${PROJECT_NAME})
 add_executable(mono_euroc
         Examples/Monocular/mono_euroc.cc)
 target_link_libraries(mono_euroc ${PROJECT_NAME})
+
+# Visualisierungs-Tool für Feature-Matches
+add_executable(debug_matches
+        Examples/Monocular/debug_matches.cc
+)
+target_link_libraries(debug_matches
+    ${PROJECT_NAME}      # Haupt-Library (wie bei rgbd_tum, stereo_kitti, ...)
+    ${OpenCV_LIBS}
+    ${TORCH_LIBRARIES}   # falls du das fürs Projekt schon definiert hast
+)
 
 add_executable(mono_tum_vi
         Examples/Monocular/mono_tum_vi.cc)

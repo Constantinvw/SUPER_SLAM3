@@ -479,7 +479,8 @@ namespace ORB_SLAM3
         std::cout << "CUDA:   " << torch::cuda::is_available() << std::endl; //CUDA should be available
 
         const char *net_fn;
-        net_fn = "yaml/packages/UFEN-SLAM/UFEN_SLAM/superpoint.pt";  //set your .pt weight path
+        net_fn = "/yaml/packages/UFEN-SLAM/UFEN_SLAM/superpoint_ufen_compatible.pt";  //set your .pt weight path
+        //net_fn = "/yaml/packages/UFEN-SLAM/UFEN_SLAM/ufen.pt";  //set your .pt weight path
         max_num =1000; //set maximum feature number extracted
 
         module = torch::jit::load(net_fn, device);

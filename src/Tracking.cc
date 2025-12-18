@@ -128,6 +128,10 @@ Tracking::Tracking(System *pSys, ORBVocabulary* pVoc, FrameDrawer *pFrameDrawer,
     vdNewKF_ms.clear();
     vdTrackTotal_ms.clear();
 #endif
+
+    mnFrameStatsCount = 0;
+    mnFeatureSum      = 0;
+    mnTrackedMPsSum   = 0;
 }
 
 #ifdef REGISTER_TIMES
@@ -528,9 +532,23 @@ void Tracking::PrintTimeStats()
 
 Tracking::~Tracking()
 {
-    //f_track_stats.close();
+    if (mnFrameStatsCount == 0)
+        return;
 
+    const double avgFeatures =
+        static_cast<double>(mnFeatureSum) / static_cast<double>(mnFrameStatsCount);
+
+    const double avgMatches =
+        static_cast<double>(mnTrackedMPsSum) / static_cast<double>(mnFrameStatsCount);
+
+    std::cout << std::endl
+              << "========== ORB-SLAM3 FEATURE STATS ==========" << std::endl
+              << "Frames (OK / RECENTLY_LOST): " << mnFrameStatsCount << std::endl
+              << "Avg ORB features per frame:  " << avgFeatures << std::endl
+              << "Avg inlier matches per frame:" << avgMatches << std::endl
+              << "=============================================" << std::endl;
 }
+
 
 void Tracking::newParameterLoader(Settings *settings) {
     mpCamera = settings->camera1();
@@ -1582,9 +1600,9 @@ Sophus::SE3f Tracking::GrabImageMonocular(const cv::Mat &im, const double &times
     }
     //-----------------------------------------------------------------
 
-    cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE();
-    clahe->setClipLimit(3.0);   // kann zwischen 2.0 und 4.0 optimiert werden
-    clahe->apply(mImGray, mImGray);
+    // cv::Ptr<cv::CLAHE> clahe = cv::createCLAHE();
+    // clahe->setClipLimit(3.0);   // kann zwischen 2.0 und 4.0 optimiert werden
+    // clahe->apply(mImGray, mImGray);
 
     //-----------------------------------------------------------------
 
@@ -2326,6 +2344,13 @@ void Tracking::Track()
 
     }
 
+    if (mState == OK || mState == RECENTLY_LOST)
+    {
+        mnFrameStatsCount++;
+        mnFeatureSum    += static_cast<unsigned long long>(mCurrentFrame.N);
+        mnTrackedMPsSum += static_cast<unsigned long long>(mnMatchesInliers);
+    }
+
 #ifdef REGISTER_LOOP
     if (Stop()) {
 
@@ -3029,6 +3054,15 @@ bool Tracking::TrackLocalMap()
             else if(mSensor==System::STEREO)
                 mCurrentFrame.mvpMapPoints[i] = static_cast<MapPoint*>(NULL);
         }
+    }
+
+    // Werte für spätere Mittelwert-Berechnung sammeln
+    if (mnMatchesInliers > 0)
+    {
+
+        mnFeatureSum     += static_cast<double>(mCurrentFrame.N);
+        mnTrackedMPsSum      += static_cast<double>(mnMatchesInliers);
+        mnFrameStatsCount += 1;
     }
 
     // Decide if the tracking was succesful
@@ -4071,6 +4105,25 @@ int Tracking::GetMatchesInliers()
 {
     return mnMatchesInliers;
 }
+
+void Tracking::PrintFeatureStats() const
+{
+    if (mnFrameStatsCount == 0)
+    {
+        std::cout << "Feature stats: no valid frames." << std::endl;
+        return;
+    }
+
+    const double avgFeat  = mnFeatureSum  / static_cast<double>(mnFrameStatsCount);
+    const double avgMatch = mnTrackedMPsSum   / static_cast<double>(mnFrameStatsCount);
+
+    std::cout << "========== Tracking stats ==========" << std::endl;
+    std::cout << "Average tracked features per frame : " << avgFeat  << std::endl;
+    std::cout << "Average inlier matches     : " << avgMatch << std::endl;
+    std::cout << "Frames used for averaging  : " << mnFrameStatsCount << std::endl;
+    std::cout << "====================================" << std::endl;
+}
+
 
 void Tracking::SaveSubTrajectory(string strNameFile_frames, string strNameFile_kf, string strFolder)
 {

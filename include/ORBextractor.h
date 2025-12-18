@@ -86,7 +86,7 @@ public:
     std::vector<cv::Mat> mvImagePyramid;
 
 protected:
-
+    void one_layer(cv::Mat& img, std::vector<cv::KeyPoint>& keypoints, cv::Mat& descriptors);
     void ComputePyramid(cv::Mat image);
     void ComputeKeyPointsOctTree(std::vector<std::vector<cv::KeyPoint> >& allKeypoints);    
     std::vector<cv::KeyPoint> DistributeOctTree(const std::vector<cv::KeyPoint>& vToDistributeKeys, const int &minX,
@@ -100,7 +100,7 @@ protected:
     int nlevels;
     int iniThFAST;
     int minThFAST;
-
+    int max_num;
     std::vector<int> mnFeaturesPerLevel;
 
     std::vector<int> umax;
@@ -109,6 +109,8 @@ protected:
     std::vector<float> mvInvScaleFactor;    
     std::vector<float> mvLevelSigma2;
     std::vector<float> mvInvLevelSigma2;
+
+    torch::jit::script::Module module;    
 };
 
 } //namespace ORB_SLAM
